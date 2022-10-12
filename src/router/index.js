@@ -40,7 +40,7 @@ export const constantRoutes = [
   {
     path: '/404',
     component: () => import('@/views/404'),
-    hidden: true
+    hidden: false
   },
 
   {
@@ -152,10 +152,24 @@ export const constantRoutes = [
   {
     path: 'external-link',
     component: Layout,
+    hidden: true,
     children: [
       {
         path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
         meta: { title: 'External Link', icon: 'link' }
+      }
+    ]
+  },
+
+  {
+    path: '/library',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/library/index'),
+        name: 'Library',
+        meta: { title: '已购图书',icon: 'education' }
       }
     ]
   },

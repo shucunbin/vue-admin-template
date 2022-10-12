@@ -11,6 +11,7 @@ export default {
   name: 'AppMain',
   computed: {
     key() {
+      // 保证不同页面的 key 不相同
       return this.$route.path
     }
   }
