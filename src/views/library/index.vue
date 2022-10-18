@@ -20,8 +20,11 @@
         <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">
           Export
         </el-button>
-        <el-checkbox v-model="showReviewer" class="filter-item" style="margin-left:15px;" @change="tableKey=tableKey+1">
+        <!-- <el-checkbox v-model="showReviewer" class="filter-item" style="margin-left:15px;" @change="tableKey=tableKey+1">
           reviewer
+        </el-checkbox> -->
+        <el-checkbox v-model="showIsbn" class="filter-item" style="margin-left:15px;" @change="tableKey=tableKey+1">
+          ISBN
         </el-checkbox>
       </div>
   
@@ -35,51 +38,81 @@
         style="width: 100%;"
         @sort-change="sortChange"
       >
-        <el-table-column label="ID" prop="id" sortable="custom" align="center" width="80" :class-name="getSortClass('id')">
+        <el-table-column label="序号" prop="id" sortable="custom" align="center" width="80" :class-name="getSortClass('id')">
           <template slot-scope="{row}">
             <span>{{ row.id }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="Date" width="150px" align="center">
+        <el-table-column v-if="showIsbn" label="ISBN" width="110px" align="center">
+          <template slot-scope="{row}">
+            <span style="color:red;">{{ row.isbn }}</span>
+          </template>
+        </el-table-column>
+        <!-- <el-table-column label="Date" width="150px" align="center">
           <template slot-scope="{row}">
             <span>{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
           </template>
-        </el-table-column>
-        <el-table-column label="Title" min-width="150px">
+        </el-table-column> -->
+        <!-- <el-table-column label="Title" min-width="150px">
           <template slot-scope="{row}">
             <span class="link-type" @click="handleUpdate(row)">{{ row.title }}</span>
             <el-tag>{{ row.type | typeFilter }}</el-tag>
           </template>
+        </el-table-column> -->
+        <el-table-column label="书名" min-width="120px" align="center">
+          <template slot-scope="{row}">
+            <span>{{ row.name }}</span>
+          </template>
         </el-table-column>
-        <el-table-column label="Author" width="110px" align="center">
+        <el-table-column label="作者" width="90px" align="center">
           <template slot-scope="{row}">
             <span>{{ row.author }}</span>
           </template>
         </el-table-column>
-        <el-table-column v-if="showReviewer" label="Reviewer" width="110px" align="center">
+        <el-table-column label="译者" width="90px" align="center">
+          <template slot-scope="{row}">
+            <span>{{ row.translator }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="价格" width="90px" align="center">
+          <template slot-scope="{row}">
+            <span>{{ row.price }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="出版日期" width="120px" align="center">
+          <template slot-scope="{row}">
+            <span>{{ row.publish_date }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="购买日期" width="120px" align="center">
+          <template slot-scope="{row}">
+            <span>{{ row.purchase_date }}</span>
+          </template>
+        </el-table-column>
+        <!-- <el-table-column v-if="showReviewer" label="Reviewer" width="110px" align="center">
           <template slot-scope="{row}">
             <span style="color:red;">{{ row.reviewer }}</span>
           </template>
-        </el-table-column>
-        <el-table-column label="Imp" width="80px">
+        </el-table-column> -->
+        <!-- <el-table-column label="Imp" width="80px">
           <template slot-scope="{row}">
             <svg-icon v-for="n in + row.importance" :key="n" icon-class="star" class="meta-item__icon" />
           </template>
-        </el-table-column>
-        <el-table-column label="Readings" align="center" width="95">
+        </el-table-column> -->
+        <!-- <el-table-column label="Readings" align="center" width="95">
           <template slot-scope="{row}">
             <span v-if="row.pageviews" class="link-type" @click="handleFetchPv(row.pageviews)">{{ row.pageviews }}</span>
             <span v-else>0</span>
           </template>
-        </el-table-column>
-        <el-table-column label="Status" class-name="status-col" width="100">
+        </el-table-column> -->
+        <!-- <el-table-column label="Status" class-name="status-col" width="100">
           <template slot-scope="{row}">
             <el-tag :type="row.status | statusFilter">
               {{ row.status }}
             </el-tag>
           </template>
-        </el-table-column>
-        <el-table-column label="Actions" align="center" width="240" class-name="small-padding fixed-width">
+        </el-table-column> -->
+        <!-- <el-table-column label="Actions" align="center" width="240" class-name="small-padding fixed-width">
           <template slot-scope="{row,$index}">
             <el-button type="primary" size="mini" @click="handleUpdate(row)">
               Edit
@@ -94,7 +127,7 @@
               Delete
             </el-button>
           </template>
-        </el-table-column>
+        </el-table-column> -->
       </el-table>
   
       <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
@@ -147,7 +180,8 @@
   </template>
   
   <script>
-  import { fetchList, fetchPv, createArticle, updateArticle } from '@/api/article'
+  import {fetchPv, createArticle, updateArticle } from '@/api/article'
+  import { fetchList } from '@/api/library'
   import waves from '@/directive/waves' // waves directive
   import { parseTime } from '@/utils'
   import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -200,7 +234,8 @@
         calendarTypeOptions,
         sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
         statusOptions: ['published', 'draft', 'deleted'],
-        showReviewer: false,
+        // showReviewer: false,
+        showIsbn: false,
         temp: {
           id: undefined,
           importance: 1,
@@ -227,7 +262,6 @@
       }
     },
     created() {
-      console.log(111)
       this.getList()
     },
     methods: {
